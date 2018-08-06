@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Index Lottery</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
+  <script src="./app.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+	<header style="float:left;">
+	  <h1>Index Lottery (Solidity)</h1>
+	</header>
+	<section style="float:left;">
+		<fieldset style="float:left;vertical-align:top;width:98%;height:180px;"> 
+			<legend>Contract Info</legend>
+			<ul>
+				<li>Contract Address                                 &nbsp; : &nbsp;<span id="address_constract"></span>&nbsp;(<input type="text" id="balance_constract" class="hd2" readonly></input>&nbsp;ether)
+				<li>Owner Account     &nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;<span id="account">               </span>&nbsp;(<input type="text" id="balance" class="hd2" readonly></input>&nbsp;ether)
+				<li>Current Gas Price                                 &nbsp; : &nbsp;<input type="text" id="gas_price" class="hd2" readonly></input>&nbsp;gwei
+			</ul>
+			<div  style="float:left;text-align:left;">
+				<input type="text" id="deposit_amt" value="0" style="width:200px;"></input>&nbsp;ether&nbsp;&nbsp;
+				<button id="send_deposit" onclick="App.deposit()">운용비 보내기</button>
+			</div>
+			<div  style="float:right;text-align:right;">
+				<button id="contract_info" onclick="App.getContractInfo()">복권 현황 조회</button>
+			</div>
+		</fieldset>
+		
+		<fieldset style="float:left;vertical-align:top;width:25%;height:240px">
+			<legend>구매자 목록</legend>
+			<select id="request_list" onclick="wallet.value=this.options[this.selectedIndex].value;setWalletBalance(wallet.value);"></select>
+		</fieldset>
+		
+		<fieldset style="float:left;vertical-align:top;width:61%;height:240px">
+			<legend>복권 구매 실행</legend>
+				<input type="text" id="wallet" class="w4" readonly placeholder="구매자를 선택하세요." onclick="this.value='';count.value=1;"></input>
+				<label>&nbsp;=>&nbsp;</label>
+				<input type="text" id="count" value="1" style="width:30px" onkeyup="amt_eth.value=this.value*0.02;"><label for="count">매</label></input>
+				<br>
+				<label class="hd">잔고&nbsp; : &nbsp;</label>
+				<input type="text" id="wallet_balance" value="0" class="hd" readonly style="width:280px;"></input>
+				<label class="hd">&nbsp;ether</label>
+				<input type="text" id="amt_eth" value="0.02" class="hd" readonly style="width:100px;"></input>
+				<label class="hd">&nbsp;ether</label>
+				<br>
+				<input type="text" id="lottery_data" class="w4" placeholder="복권번호를 입력하세요." ></input>
+				<label style="width:20px;"></label>
+				<button id="send" onclick="App.buy(wallet.value, count.value, lottery_data.value, gas_price.value);">복권 구매</button>
+		</fieldset>
+	</section>
+	<footer style="float:left;">
+	  <div id="logs" style="white-space: pre-wrap;"></div>
+	  <script type="text/javascript">
+		// ethgas 예상
+		$.getJSON("https://ethgasstation.info/json/ethgasAPI.json", function(data) {
+			console.log(data);
+			let gasInfo = data["safeLow"] / 10;
+			document.getElementById("gas_price").value = gasInfo;
+		});
+		
+		
+		function setWalletBalance(walletAddress) {
+			console.log(walletAddress);
+			App.ethGetBalance(walletAddress, "wallet_balance");
+		}
+	  </script>
+	</footer>
+</body>
+</html>
