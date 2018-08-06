@@ -27,8 +27,6 @@ const ADDR_LOTTERY  = "0xf12b5dd4ead5f743c6baa640b0216200e89b60da";
 const ADDR_PAYMENT = "";
 const URL_PRIVATE     = "http://127.0.0.1:9545";
 
-const walletNames =  ["가", "나", "다", "라", "마", "바", "사", "아", "자", "차"];
-
 const App = {
   start: function () {
     const self = this;
@@ -69,20 +67,17 @@ const App = {
 		
 		console.log(">>>	" + account);
 				
-		self.getBlockNumber();
+		App.getBlockNumber();
 		
-		self.ethGetBalance(account, "balance");
-		
-		self.refreshLotteryBalance();
+		App.refreshContractInfo();
 		
     });
 	
   },
   
 	ethGetBalance : function (reqAccount, elementId) {
-	  
-		// Ether(수수료) 조회
-		web3.eth.getBalance(reqAccount, function(error, result) {
+
+			web3.eth.getBalance(reqAccount, function(error, result) {
 			
 			if (error != null) {
 				console.log(error);
@@ -90,25 +85,22 @@ const App = {
 				return;
 			}
 			
-			const myEther = BigNumber(result);
-			let etherMessage = "";
-			if (myEther.isLessThan(1000000000000000))  {
-				etherMessage = " (경고 : 이더 부족으로 실행하지 못할 수도 있습니다.)";
-			}
+			//const myEther = BigNumber(result);
+			const ethVal = web3.fromWei(result, "ether");
 			
-			const ethVal = web3.fromWei(myEther, "ether");
-			
-			App.writeLog(etherMessage == "" ? reqAccount + " : " + ethVal : etherMessage);
+			App.writeLog(reqAccount + ":" + ethVal);
 			
 			document.getElementById(elementId).value = ethVal;
 			
 		});
 
 	},
-
+	
+	/**
+	 * 블럭 정보 조회
+	 */
 	getBlockNumber : function() {
-
-		// 블럭 정보 조회
+		
 		web3.eth.getBlockNumber(function(error, result) {
 
 			if (error != null) {
@@ -124,6 +116,10 @@ const App = {
 
 	},
 	
+	/**
+	 * 로그 출력
+	 * @param {string} msg
+	 */
 	writeLog : function (msg) {
 
 		logs = logs + "[" + new Date().toLocaleString() + "] 	" + msg + "\n";
@@ -133,12 +129,32 @@ const App = {
 
 	},
 
-	getContractInfo : function () {
+	/**
+	 * 복권 계약 및 Owner 잔고 조회
+	 */
+	refreshContractInfo : function () {
 		
-		App.ethGetBalance(account, "balance");
-
+		new Promise(function(resolve, reject) {
+				
+			App.ethGetBalance(account,             "balance");
+		
+			return resolve();
+			
+		}).then(function () {
+			
+			App.ethGetBalance(ADDR_LOTTERY, "balance_constract");
+			
+		}).catch(function(e) {
+			
+			console.log(e);
+			
+		});
+		
 	},
-
+	
+	/**
+	 * 복권 계약 address 조회
+	 */
 	getThisAddress : function () {
 		
 		LotteryContract.deployed().then(function (instance) {
@@ -164,84 +180,124 @@ const App = {
 	
 	},
 	
-
-	refreshLotteryBalance : function () {
+	/**
+	 * 복권 계약 운용 재원 입금
+	 */
+	deposit : function () {
 		
-		web3.eth.getBalance(ADDR_LOTTERY, function(error, result) {
+		const depositObj = document.getElementById("deposit_amt");
+		console.log(depositObj.value);
+		const amt = web3.toWei(depositObj.value, "ether");
+		
+		new Promise(function(resolve, reject) {
+			web3.eth.sendTransaction (
+				{
+					from:account, 
+					to:ADDR_LOTTERY, 
+					value:amt
+				},
+				function (error, result) {
+					
+					console.log(error);
+					App.writeLog(error.toString());
+					console.log(result); 
+					App.writeLog(result);
+					depositObj.value = 0;
+					
+				}
+			);
 			
-			if (error != null) {
-				console.log(error);
-				App.writeLog(error.toString());
-				return;
-			}
+			return resolve();
 			
-			const myEther = BigNumber(result);
-			let etherMessage = "";
-			if (myEther.isLessThan(1000000000000000))  {
-				etherMessage = " (경고 : 이더 부족으로 실행하지 못할 수도 있습니다.)";
-			}
-			let balanceContract = web3.fromWei(myEther, "ether");
-			App.writeLog(ADDR_LOTTERY + " : " + balanceContract);
-			document.getElementById("balance_constract").value = balanceContract;
+		}).then(function () {
+			
+			App.refreshContractInfo();
+			
+		}).catch(function(e) {
+			
+			console.log(e);
+			
 		});
 	
-	},
-
-	deposit : function () {
-
-		console.log(document.getElementById("deposit_amt").value);
-		const amt = web3.toWei(document.getElementById("deposit_amt").value, "ether");
-		web3.eth.sendTransaction (
-			{
-				from:account, 
-				to:ADDR_LOTTERY, 
-				value:amt
-			},
-			function(error, result) {
-				console.log(error);
-				App.writeLog(error.toString());
-				console.log(result); 
-				App.writeLog(result);
-				document.getElementById("deposit_amt").value = 0;
-				
-				App.refreshLotteryBalance();
-			}
-		);
-	
 	
 	},
 	
-	approve : function (wallet) {
-		
-		
-		
-		
-	},	
-	
+	/**
+	 * 구매요청 지갑으로부터 복권계약으로 금액과 데이터를 전송
+	 * 
+	 * @param wallet
+	 * @param count
+	 * @param lotData
+	 * @param gasPrice
+	 */
 	buy : function (wallet, count, lotData, gasPrice) {
-		const amt = web3.toWei(count * 0.02, "ether");
-		const gas = BigNumber(gasPrice).multipliedBy(1000000000);
+		
+		// 단위 환산
+		const amt      = web3.toWei(count * 0.02, "ether");
+		const calcGas = BigNumber(gasPrice).multipliedBy(1000000000);
+		
 		App.writeLog("wallet=" + wallet + ", count=" + count + ", lotData=" + lotData + ", gasPrice=" + gasPrice + ", amt=" + amt);
+		
 		App.writeLog("Initiating transaction... (please wait)");
 		App.writeLog(wallet + "=" + web3.isAddress(wallet));
 		App.writeLog("web3.eth.defaultAccount=" + web3.eth.defaultAccount);
 		
-		// TODO 수정중. 인출 권한 주기 구현후 실행
-		web3.eth.sendTransaction (
-			{
-				from:wallet, 
-				to:ADDR_LOTTERY, 
-				value:amt, 
-				data:lotData
-				/*gasPrice:gas*/
-			},
-			function(error, result) {
-				console.log(error);
-				App.writeLog(error.toString());
-				console.log(result); 
-				App.writeLog(result);                              
-			}
-		);
+		// Dapp 수행
+		App.writeLog("!!!!	" + JSON.stringify(deployedContract));
+		new Promise(function(resolve, reject) {
+			App.writeLog("# 0");
+			deployedContract.approve.sendTransaction(
+				wallet, amt,
+				{from:account, to:ADDR_LOTTERY, gas:10000000000},
+				function(error, result) {
+					
+					if (error != null) {
+						console.log(error);
+						App.writeLog("approve error!");
+						return;
+					}
+					
+					App.writeLog("# 1");
+					App.writeLog(account + " -> " + wallet + "(" + amt + ")");
+
+				}
+			);
+			
+			App.writeLog("# 2");
+			
+			return resolve();
+			
+		}).then(function () {
+
+			App.writeLog("# 3");
+			// 인출
+			web3.eth.sendTransaction (
+				{
+					from:wallet, 
+					to:ADDR_LOTTERY, 
+					value:amt, 
+					data:lotData,
+					gas:calcGas
+				},
+				function(error, result) {
+					console.log(error);
+					App.writeLog(error.toString());
+					console.log(result);
+					App.writeLog(result);
+				}
+			);
+			
+		}).then(function () {
+			
+			// TODO 인출 권한 회수
+			
+			
+		}).catch(function(e) {
+			
+			console.log(e);
+			
+		});
+
 	/*
 	//LotteryContract.deployed().then(function (instance) {
 		let instance = LotteryContract.at(ADDR_LOTTERY);
