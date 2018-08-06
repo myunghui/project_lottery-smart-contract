@@ -15,7 +15,7 @@
 			<legend>Contract Info</legend>
 			<ul>
 				<li>Contract Address                                 &nbsp; : &nbsp;<span id="address_constract"></span>&nbsp;(<input type="text" id="balance_constract" class="hd2" readonly></input>&nbsp;ether)
-				<li>Owner Account     &nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;<span id="account">               </span>&nbsp;(<input type="text" id="balance" class="hd2" readonly></input>&nbsp;ether)
+				<li>Owner Account     &nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;<span id="account">               </span>&nbsp;(<input type="text" id="balance"                class="hd2" readonly></input>&nbsp;ether)
 				<li>Current Gas Price                                 &nbsp; : &nbsp;<input type="text" id="gas_price" class="hd2" readonly></input>&nbsp;gwei
 			</ul>
 			<div  style="float:left;text-align:left;">
@@ -23,7 +23,7 @@
 				<button id="send_deposit" onclick="App.deposit()">운용비 보내기</button>
 			</div>
 			<div  style="float:right;text-align:right;">
-				<button id="contract_info" onclick="App.getContractInfo()">복권 현황 조회</button>
+				<button id="contract_info" onclick="App.refreshContractInfo()">복권 현황 조회</button>
 			</div>
 		</fieldset>
 		
@@ -50,21 +50,25 @@
 		</fieldset>
 	</section>
 	<footer style="float:left;">
-	  <div id="logs" style="white-space: pre-wrap;"></div>
-	  <script type="text/javascript">
-		// ethgas 예상
-		$.getJSON("https://ethgasstation.info/json/ethgasAPI.json", function(data) {
-			console.log(data);
-			let gasInfo = data["safeLow"] / 10;
-			document.getElementById("gas_price").value = gasInfo;
-		});
+	<div id="logs" style="white-space: pre-wrap;"></div>
+		<script type="text/javascript">
 		
+			//$(document).ready(function() {
+			
+				// ethgas 예상
+				$.getJSON("https://ethgasstation.info/json/ethgasAPI.json", function(data) {
+					console.log(data);
+					let gasInfo = data["safeLow"] / 10;
+					document.getElementById("gas_price").value = gasInfo;
+				});
+
+			//});
 		
-		function setWalletBalance(walletAddress) {
-			console.log(walletAddress);
-			App.ethGetBalance(walletAddress, "wallet_balance");
-		}
-	  </script>
+			function setWalletBalance(walletAddress) {
+				console.log(walletAddress);
+				App.ethGetBalance(walletAddress, "wallet_balance");
+			}
+		</script>
 	</footer>
 </body>
 </html>
