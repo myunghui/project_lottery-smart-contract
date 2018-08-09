@@ -69,4 +69,5 @@
         . 입금 요청을 처리
 
 ## 이미지
-![main image](project_lottery-smart-contract/1.JPG)
+
+![alt text](./1.JPG)
