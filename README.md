@@ -68,3 +68,5 @@
         . 복권의 회차의 사이클과 무관하게 지급 장부를 관리하는 계약
         . 입금 요청을 처리
 
+## 이미지
+![main image](project_lottery-smart-contract/1.JPG)
