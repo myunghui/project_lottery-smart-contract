@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Index Lottery (Solidity)</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
+	<link href="stylesheets/app.css" rel="stylesheet">
+</head>
+<body>
+
+	<header  style="float:left;">
+	  <h1>Index Lottery (Solidity)</h1>
+	</header>
+	
+	<div style="float:left;width:80%;">
+		<fieldset style="float:left;vertical-align:top;width:97%;height:180px;"> 
+			<legend>Contract Info</legend>
+			<ul>
+				<li>Contract Address                                 &nbsp; : &nbsp;<span id="contract_address" style="display:inline-block;width:400px;"></span>&nbsp;(<input type="text" id="contract_balance"             class="hd2" readonly></input>&nbsp;ether)
+				<li>Owner Account     &nbsp;&nbsp;&nbsp;&nbsp; : &nbsp;<span id="contract_owner"   style="display:inline-block;width:400px;"></span>&nbsp;(<input type="text" id="contract_owner_balance"  class="hd2" readonly></input>&nbsp;ether)
+				<li>Current Gas Price                                 &nbsp; : &nbsp;<input type="text" id="gas_price" class="hd2" readonly></input>&nbsp;gwei
+			</ul>
+			<div  style="float:left;text-align:left;">
+				<input type="text" id="deposit_amt" value="0" style="width:200px;"></input>&nbsp;ether&nbsp;&nbsp;
+				<button id="deposit">운용비 보내기</button>
+			</div>
+			<div  style="float:right;text-align:right;">
+				<button id="contract_info">복권 현황 조회</button>
+			</div>
+		</fieldset>
+		
+		<fieldset style="float:left;vertical-align:top;height:240px;">
+			<legend>구매자 목록</legend>
+			<select id="request_list"></select>
+		</fieldset>
+		
+		<fieldset style="float:left;vertical-align:top;width:54%;height:240px;">
+			<legend>복권 구매 실행</legend>
+				<input type="text" id="wallet" class="w4" readonly placeholder="구매자를 선택하세요." onclick="this.value='';count.value=1;"></input>
+				<label>&nbsp;=>&nbsp;</label>
+				<input type="text" id="count" value="1" style="width:30px"><label for="count">매</label></input>
+				<br>
+				<label class="hd">잔고&nbsp; : &nbsp;</label>
+				<input type="text" id="wallet_balance" value="0" class="hd" readonly style="width:280px;"></input>
+				<label class="hd">&nbsp;ether</label>
+				<input type="text" id="amt_eth" value="0.02" class="hd" readonly style="width:100px;"></input>
+				<label class="hd">&nbsp;ether</label>
+				<br>
+				<input type="text" id="lottery_data" class="w4" placeholder="복권번호를 입력하세요." ></input>
+				<label style="width:20px;"></label>
+				<button id="buy">복권 구매</button>
+		</fieldset>
+		
+	</div>
+	
+	<footer style="float:left;">
+		<div id="logs" style="white-space: pre-wrap;"></div>
+		<script src="javascript/accounts.js"></script>
+	</footer>
+	
+</body>
+
+</html>
