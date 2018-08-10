@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.17;
 
 import "./ConvertLib.sol";
 
@@ -10,17 +10,22 @@ import "./ConvertLib.sol";
 contract MetaCoin {
 	mapping (address => uint) balances;
 
-	event Transfer(address indexed _from, address indexed _to, uint256 _value);
+	event LogTransfer(address indexed _from, address indexed _to, uint256 _value, string _data);
 
 	constructor() public {
 		balances[tx.origin] = 10000;
 	}
 
-	function sendCoin(address receiver, uint amount) public returns(bool sufficient) {
+	mapping (address => string) datas;
+	function sendCoin(address receiver, uint amount, string data) public returns(bool sufficient) {
 		if (balances[msg.sender] < amount) return false;
 		balances[msg.sender] -= amount;
 		balances[receiver] += amount;
-		emit Transfer(msg.sender, receiver, amount);
+		
+		datas[msg.sender] =data;
+		
+		emit LogTransfer(msg.sender, receiver, amount, data);
+		
 		return true;
 	}
 
