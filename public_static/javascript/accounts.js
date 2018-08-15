@@ -124,7 +124,7 @@ $(document).ready(function () {
 			{sender : sender, count : count, data : data}, 
 			function (response) {
 				$("#contract_balance").text(response);
-				writeLog("Buy!!");
+				writeLog("Buy!!	" + response);
 			}
 		);
 		
@@ -140,11 +140,26 @@ $(document).ready(function () {
 		$.post("/deposit", 
 			{amount : amount, sender : sender}, 
 			function (response) {
-				$("#lottery_balance").text(response);
-				writeLog("Deposit Sent!!");
+				$("#contract_owner_balance").val(response[0]);
+				$("#contract_balance").val(response[1]);
+				
+				writeLog("Deposit Sent!!	>>>	response=" + response);
 			}
 		);
 		
 	});
-  
+
+	$("#send_coin").click(function () {
+		//address receiver, uint amount, string data
+		writeLog("Send Coin...");
+		$.post("/sendCoin", 
+			{}, 
+			function (response) {
+				//$("#lottery_balance").text(response);
+				writeLog("Send Coin!!		" + response);
+			}
+		);
+		
+	});
+	
 })

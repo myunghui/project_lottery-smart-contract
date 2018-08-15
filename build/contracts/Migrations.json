@@ -1378,10 +1378,10 @@
     "666": {
       "events": {},
       "links": {},
-      "address": "0xaea1e8c8fedf8e4ded82ae8bad18d37e37aa631e",
-      "transactionHash": "0x105373525eea8cc26b7b0cd7fb459cc926fefee1d0d477837962106e91489fbd"
+      "address": "0x5bc69744d81df52122e482833b359dac278bb066",
+      "transactionHash": "0x98fd1acc8b6482d6d8e42b011b25948d63cc95178dc1d38b706b32676be2c843"
     }
   },
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-08-10T16:00:44.327Z"
+  "updatedAt": "2018-08-15T14:26:47.464Z"
 }

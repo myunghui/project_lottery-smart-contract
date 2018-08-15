@@ -35,8 +35,8 @@ contract IndexLottery is BurnableToken, PausableToken, Destructible {
   function getThisAddress() public view returns(address) {
       return  address(this);
   }
-
-
+  
+	
 /*
 ===============================================================================================
 복권 구매 정보 처리
@@ -44,7 +44,7 @@ contract IndexLottery is BurnableToken, PausableToken, Destructible {
 */
 
   // 총복권 판매수
-  uint256 private totalCount;
+  uint256 public totalCount;
 
   // 복권 현황 : 복권번호 => (구매자 지갑주소 => 수량)
   mapping(string=>mapping(address=>uint256)) private lotMap;
@@ -55,7 +55,7 @@ contract IndexLottery is BurnableToken, PausableToken, Destructible {
   // 구매자 현황 : 구매자 지갑주소 => (복권번호 => 수량)
   mapping(address=>mapping(string=>uint256)) private custMap;
   mapping(address=>string[])                 private custKey; // 구매자별 복권번호
-
+  
   /**
     * @dev 복권 구매 정보 처리
     * @param lotData 구매 복권번호
@@ -76,13 +76,13 @@ contract IndexLottery is BurnableToken, PausableToken, Destructible {
       }
       */
       // 1.2 복권번호별 매수 저장
-      lotMap[lotData][customer].add(lotCnt);
+      lotMap[lotData][customer] = lotMap[lotData][customer].add(lotCnt);
 
       // 1.3 복권번호별 누적 매수 저장
-      lotTot[lotData].add(lotCnt);
+      lotTot[lotData] = lotTot[lotData].add(lotCnt);
 
       // 2. 총 판매수 저장
-      totalCount.add(lotCnt);
+      totalCount = totalCount.add(lotCnt);
 
       // 3. 구매자 현황 저장
       // 3.1 구매자별 복권번호 저장
@@ -90,10 +90,13 @@ contract IndexLottery is BurnableToken, PausableToken, Destructible {
         custKey[customer].push(lotData);
       }
       // 3.2 구매자별 매수 저장
-      custMap[customer][lotData].add(lotCnt);
+      custMap[customer][lotData] = custMap[customer][lotData].add(lotCnt);
 
     }
 
+	function getLotCnt(string lotData, address customer) public view returns(uint256 cnt) {
+		return lotMap[lotData][customer];
+	}
     /**
       * @dev 해당 복권 번호의 구매자 리스트를 조회한다.
       * @param lotData 구매 복권번호
@@ -126,10 +129,11 @@ contract IndexLottery is BurnableToken, PausableToken, Destructible {
   // 단위 배당금
   uint256 constant public UNIT_BASE = 18000000000000000;
   event LogFallback(address who, uint256 amt);
+  
   /*
    * @dev Fallback 함수
    */
-  function() external payable isValidPay() {
+  function() public payable isValidPay() {
 
     buyLottery(msg.value, string(msg.data), msg.sender);
         
@@ -139,19 +143,22 @@ contract IndexLottery is BurnableToken, PausableToken, Destructible {
 
   event LogBuyLottery(address customer, uint256 amt, string lotData, uint256 lotCnt);
   event LogStr(string log);
-
+  
   /*
    * @dev 복권 구매
    */
-  function buyLottery(uint256 amt, string lotData, address customer) private whenNotPaused {
+  function buyLottery(uint256 amt, string lotData, address customer) public payable whenNotPaused returns(uint256 cnt) {
 
     // 복권 구매 매수 계산
     uint256 lotCnt = amt.div(UNIT_PRICE);
 
     // 복권 현황 등록
     regist(lotData, customer, lotCnt);
-
+	
+	
     emit LogBuyLottery(customer, amt, lotData, lotCnt);
+	
+	return lotCnt;
 
   }
 
